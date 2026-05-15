@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPM Academy | BPM Lernplattform</title>
+
+    <!-- ================================================================
+         BPM E-Learning Platform
+         -----------------------------------------------------------------
+         Technologies: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
+         Purpose:      Interactive online course for Business Process
+                       Management (BPM) and BPMN 2.0 fundamentals
+         Languages:    English & German (switchable)
+         Features:     - 5 learning modules with section quizzes
+                       - Interactive BPMN exercises (bpmn.io viewer)
+                       - Final multiple-choice exam
+                       - Downloadable PDF certificate
+                       - Progress tracking via localStorage
+    ================================================================ -->
+
+    <!-- Bootstrap 5 CSS Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons Library -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom Application Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ================================================================
+         TOP NAVIGATION BAR
+         Contains: Brand logo, overall progress bar, language toggle
+    ================================================================ -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+        <div class="container-fluid px-3">
+
+            <!-- Brand / Logo — clicking resets view to welcome page -->
+            <a class="navbar-brand d-flex align-items-center" href="#" onclick="App.showWelcome(); return false;">
+                <i class="bi bi-diagram-3-fill me-2 fs-4"></i>
+                <span data-i18n="brand">BPM Academy</span>
+            </a>
+
+            <!-- Mobile sidebar toggle button -->
+            <button class="btn btn-outline-light d-md-none ms-auto me-2" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas"
+                    aria-label="Toggle navigation">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Right-side controls: progress indicator + language switcher -->
+            <div class="d-flex align-items-center">
+
+                <!-- Overall Course Progress Bar (hidden on small screens) -->
+                <div class="d-none d-md-flex align-items-center me-3">
+                    <small class="text-light me-2" data-i18n="progress">Progress</small>
+                    <div class="progress" style="width: 140px; height: 8px;">
+                        <div class="progress-bar bg-success" id="overall-progress"
+                             role="progressbar" style="width: 0%" aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-light ms-2" id="progress-text">0%</small>
+                </div>
+
+                <!-- Language Toggle Buttons (EN / DE) -->
+                <div class="btn-group" role="group" aria-label="Language selector">
+                    <button class="btn btn-outline-light btn-sm active" id="btn-lang-en"
+                            onclick="App.setLanguage('en')">EN</button>
+                    <button class="btn btn-outline-light btn-sm" id="btn-lang-de"
+                            onclick="App.setLanguage('de')">DE</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================================================================
+         MAIN LAYOUT WRAPPER
+         Two-column layout: sidebar (navigation) + main content area
+    ================================================================ -->
+    <div class="container-fluid main-wrapper">
+        <div class="row">
+
+            <!-- ========================================================
+                 LEFT SIDEBAR — Module Navigation
+                 - Lists all course modules with completion indicators
+                 - Uses Bootstrap Offcanvas for mobile responsiveness
+                 - Modules lock/unlock based on progress
+            ======================================================== -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar-wrapper" id="sidebarNav">
+                <div class="offcanvas-md offcanvas-start bg-light" tabindex="-1"
+                     id="sidebarOffcanvas" aria-labelledby="sidebarLabel">
+
+                    <!-- Offcanvas header (visible on mobile only) -->
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title" id="sidebarLabel" data-i18n="modules">Modules</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                data-bs-target="#sidebarOffcanvas" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Sidebar body with module list -->
+                    <div class="offcanvas-body p-0">
+                        <div class="sidebar-sticky pt-3">
+                            <!-- Module heading (desktop) -->
+                            <h6 class="sidebar-heading d-none d-md-block px-3 mb-2 text-muted text-uppercase"
+                                data-i18n="course_modules">Course Modules</h6>
+
+                            <!-- Module navigation list — rendered dynamically by app.js -->
+                            <ul class="nav flex-column" id="sidebar-modules">
+                                <!-- Items inserted by JavaScript -->
+                            </ul>
+
+                            <!-- Divider before exam/certificate links -->
+                            <hr class="my-2">
+
+                            <!-- Final Exam link -->
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link sidebar-link" href="#" id="nav-exam"
+                                       onclick="App.showExam(); return false;">
+                                        <i class="bi bi-clipboard-check me-2"></i>
+                                        <span data-i18n="final_exam">Final Exam</span>
+                                        <i class="bi bi-lock-fill ms-auto sidebar-lock" id="exam-lock"></i>
+                                    </a>
+                                </li>
+                                <!-- Certificate link -->
+                                <li class="nav-item">
+                                    <a class="nav-link sidebar-link" href="#" id="nav-certificate"
+                                       onclick="App.showCertificate(); return false;">
+                                        <i class="bi bi-award me-2"></i>
+                                        <span data-i18n="certificate">Certificate</span>
+                                        <i class="bi bi-lock-fill ms-auto sidebar-lock" id="cert-lock"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- ========================================================
+                 MAIN CONTENT AREA
+                 Dynamically displays: welcome page, module content,
+                 section quizzes, final exam, or certificate page
+            ======================================================== -->
+            <main class="col-md-9 col-lg-10 main-content px-md-4" id="main-content">
+                <div id="content-area">
+                    <!-- Content is dynamically inserted here by app.js -->
+                    <!-- Default: Welcome / landing page -->
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER
+    ================================================================ -->
+    <footer class="footer bg-dark text-light text-center py-3">
+        <div class="container-fluid">
+            <small>
+                &copy; 2026 BPM Academy &mdash;
+                <span data-i18n="footer_text">Business Process Management Learning Platform</span>
+            </small>
+        </div>
+    </footer>
+
+    <!-- ================================================================
+         EXTERNAL LIBRARIES (CDN)
+    ================================================================ -->
+
+    <!-- Bootstrap 5 JS Bundle (includes Popper.js for dropdowns/tooltips) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jsPDF — Client-side PDF generation for certificates -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <!-- bpmn-js Navigated Viewer — Displays interactive BPMN 2.0 diagrams -->
+    <script src="https://unpkg.com/bpmn-js@14.0.0/dist/bpmn-navigated-viewer.development.js"></script>
+
+    <!-- ================================================================
+         APPLICATION SCRIPTS (loaded in dependency order)
+    ================================================================ -->
+    <script src="js/i18n.js"></script>            <!-- Internationalization strings (EN/DE) -->
+    <script src="js/content.js"></script>          <!-- Course content: Modules 1-3 -->
+    <script src="js/content2.js"></script>         <!-- Course content: Modules 4-5 + Exam -->
+    <script src="js/quiz.js"></script>             <!-- Quiz rendering & scoring engine -->
+    <script src="js/certificate.js"></script>      <!-- PDF certificate generation -->
+    <script src="js/bpmn-exercise.js"></script>    <!-- BPMN diagram viewer & exercises -->
+    <script src="js/app.js"></script>              <!-- Main application controller (loaded last) -->
+
+</body>
+</html>

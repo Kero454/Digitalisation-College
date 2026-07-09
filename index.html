@@ -25,6 +25,11 @@
     <!-- Bootstrap Icons Library -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
+    <!-- bpmn-js styles: diagram-js core, BPMN font, and modeler palette/context-pad -->
+    <link href="https://unpkg.com/bpmn-js@14.0.0/dist/assets/diagram-js.css" rel="stylesheet">
+    <link href="https://unpkg.com/bpmn-js@14.0.0/dist/assets/bpmn-js.css" rel="stylesheet">
+    <link href="https://unpkg.com/bpmn-js@14.0.0/dist/assets/bpmn-font/css/bpmn.css" rel="stylesheet">
+
     <!-- Custom Application Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
 </head>
@@ -176,8 +181,15 @@
     <!-- jsPDF — Client-side PDF generation for certificates -->
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-    <!-- bpmn-js Navigated Viewer — Displays interactive BPMN 2.0 diagrams -->
+    <!-- bpmn-js Navigated Viewer — read-only interactive diagrams in lessons -->
     <script src="https://unpkg.com/bpmn-js@14.0.0/dist/bpmn-navigated-viewer.development.js"></script>
+    <!-- Capture the viewer global before the Modeler bundle overwrites BpmnJS -->
+    <script>window.BpmnViewer = window.BpmnJS;</script>
+
+    <!-- bpmn-js Modeler — full editable BPMN 2.0 modeler for the hands-on editor -->
+    <script src="https://unpkg.com/bpmn-js@14.0.0/dist/bpmn-modeler.development.js"></script>
+    <!-- Capture the modeler global under its own name -->
+    <script>window.BpmnModeler = window.BpmnJS;</script>
 
     <!-- ================================================================
          APPLICATION SCRIPTS (loaded in dependency order)
@@ -185,9 +197,10 @@
     <script src="js/i18n.js"></script>            <!-- Internationalization strings (EN/DE) -->
     <script src="js/content.js"></script>          <!-- Course content: Modules 1-3 -->
     <script src="js/content2.js"></script>         <!-- Course content: Modules 4-5 + Exam -->
+    <script src="js/content3.js"></script>         <!-- Course content: Modules 6-10 + more Exam -->
     <script src="js/quiz.js"></script>             <!-- Quiz rendering & scoring engine -->
     <script src="js/certificate.js"></script>      <!-- PDF certificate generation -->
-    <script src="js/bpmn-exercise.js"></script>    <!-- BPMN diagram viewer & exercises -->
+    <script src="js/bpmn-exercise.js"></script>    <!-- BPMN diagram viewer, editor & exercises -->
     <script src="js/app.js"></script>              <!-- Main application controller (loaded last) -->
 
 </body>

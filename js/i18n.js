@@ -264,6 +264,40 @@ const I18n = (function () {
         please_answer_all: {
             en: "Please answer all questions before submitting.",
             de: "Bitte beantworten Sie alle Fragen vor dem Absenden."
+        },
+
+        /* --- Interactive BPMN Editor --- */
+        editor_title: {
+            en: "BPMN Editor (editable)",
+            de: "BPMN-Editor (bearbeitbar)"
+        },
+        editor_new: {
+            en: "New blank diagram",
+            de: "Neues leeres Diagramm"
+        },
+        editor_load_template: {
+            en: "Load template…",
+            de: "Vorlage laden…"
+        },
+        editor_zoom_fit: {
+            en: "Fit to view",
+            de: "An Ansicht anpassen"
+        },
+        editor_undo: {
+            en: "Undo",
+            de: "Rückgängig"
+        },
+        editor_redo: {
+            en: "Redo",
+            de: "Wiederholen"
+        },
+        editor_download_xml: {
+            en: "Download .bpmn",
+            de: ".bpmn herunterladen"
+        },
+        editor_download_svg: {
+            en: "Download .svg",
+            de: ".svg herunterladen"
         }
     };
 

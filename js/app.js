@@ -24,6 +24,15 @@ const App = (function () {
     let currentSectionIndex = 0;
 
     /* ----------------------------------------------------------
+       TEMPORARY: DISABLE SEQUENTIAL LOCKING
+       ---------------------------------------------------------
+       When true, every module and the final exam are unlocked
+       regardless of quiz progress (useful for demos/testing).
+       Set back to false to restore normal sequential unlocking.
+    ---------------------------------------------------------- */
+    const UNLOCK_ALL = true;
+
+    /* ----------------------------------------------------------
        init()
        ---------------------------------------------------------
        Called when the page loads. Sets up the initial state:
@@ -508,12 +517,14 @@ const App = (function () {
 
     /* isModuleUnlocked(index) — A module is unlocked if the previous one is completed (or it's module 0) */
     function isModuleUnlocked(index) {
+        if (UNLOCK_ALL) return true; /* TEMPORARY: locks disabled */
         if (index === 0) return true;
         return isModuleCompleted(index - 1);
     }
 
     /* areAllModulesCompleted() — Check if all module quizzes have been passed */
     function areAllModulesCompleted() {
+        if (UNLOCK_ALL) return true; /* TEMPORARY: locks disabled — unlocks the exam */
         for (var i = 0; i < COURSE_CONTENT.length; i++) {
             if (!isModuleCompleted(i)) return false;
         }

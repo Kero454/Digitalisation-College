@@ -191,6 +191,232 @@ const BpmnExercise = (function () {
   </bpmndi:BPMNDiagram>
 </definitions>`;
 
+    /* --- Events Example: message start, timer, error boundary --- */
+    const EVENTS_PROCESS_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_Ev" targetNamespace="http://bpmn.io/schema/bpmn">
+  <process id="EventsProcess" isExecutable="false" name="Event-Driven Order">
+    <startEvent id="ev_start" name="Order Message Received">
+      <outgoing>ev_f1</outgoing>
+      <messageEventDefinition id="ev_msgdef"/>
+    </startEvent>
+    <task id="ev_receive" name="Register Order">
+      <incoming>ev_f1</incoming>
+      <outgoing>ev_f2</outgoing>
+    </task>
+    <intermediateCatchEvent id="ev_timer" name="Wait 2 Days">
+      <incoming>ev_f2</incoming>
+      <outgoing>ev_f3</outgoing>
+      <timerEventDefinition id="ev_timerdef"/>
+    </intermediateCatchEvent>
+    <task id="ev_ship" name="Ship Order">
+      <incoming>ev_f3</incoming>
+      <outgoing>ev_f4</outgoing>
+    </task>
+    <endEvent id="ev_end_ok" name="Order Shipped">
+      <incoming>ev_f4</incoming>
+    </endEvent>
+    <boundaryEvent id="ev_boundary" name="Shipping Failed" attachedToRef="ev_ship">
+      <outgoing>ev_f5</outgoing>
+      <errorEventDefinition id="ev_errdef1"/>
+    </boundaryEvent>
+    <task id="ev_handle" name="Handle Failure">
+      <incoming>ev_f5</incoming>
+      <outgoing>ev_f6</outgoing>
+    </task>
+    <endEvent id="ev_end_err" name="Order Failed">
+      <incoming>ev_f6</incoming>
+      <errorEventDefinition id="ev_errdef2"/>
+    </endEvent>
+    <sequenceFlow id="ev_f1" sourceRef="ev_start" targetRef="ev_receive"/>
+    <sequenceFlow id="ev_f2" sourceRef="ev_receive" targetRef="ev_timer"/>
+    <sequenceFlow id="ev_f3" sourceRef="ev_timer" targetRef="ev_ship"/>
+    <sequenceFlow id="ev_f4" sourceRef="ev_ship" targetRef="ev_end_ok"/>
+    <sequenceFlow id="ev_f5" sourceRef="ev_boundary" targetRef="ev_handle"/>
+    <sequenceFlow id="ev_f6" sourceRef="ev_handle" targetRef="ev_end_err"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Ev">
+    <bpmndi:BPMNPlane id="BPMNPlane_Ev" bpmnElement="EventsProcess">
+      <bpmndi:BPMNShape id="ev_start_di" bpmnElement="ev_start"><dc:Bounds x="160" y="182" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_receive_di" bpmnElement="ev_receive"><dc:Bounds x="250" y="160" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_timer_di" bpmnElement="ev_timer"><dc:Bounds x="410" y="182" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_ship_di" bpmnElement="ev_ship"><dc:Bounds x="510" y="160" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_end_ok_di" bpmnElement="ev_end_ok"><dc:Bounds x="680" y="182" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_boundary_di" bpmnElement="ev_boundary"><dc:Bounds x="542" y="222" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_handle_di" bpmnElement="ev_handle"><dc:Bounds x="510" y="320" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_end_err_di" bpmnElement="ev_end_err"><dc:Bounds x="680" y="342" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="ev_f1_di" bpmnElement="ev_f1"><di:waypoint x="196" y="200"/><di:waypoint x="250" y="200"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ev_f2_di" bpmnElement="ev_f2"><di:waypoint x="350" y="200"/><di:waypoint x="410" y="200"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ev_f3_di" bpmnElement="ev_f3"><di:waypoint x="446" y="200"/><di:waypoint x="510" y="200"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ev_f4_di" bpmnElement="ev_f4"><di:waypoint x="610" y="200"/><di:waypoint x="680" y="200"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ev_f5_di" bpmnElement="ev_f5"><di:waypoint x="560" y="258"/><di:waypoint x="560" y="320"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ev_f6_di" bpmnElement="ev_f6"><di:waypoint x="610" y="360"/><di:waypoint x="680" y="360"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>`;
+
+    /* --- Gateways Example: inclusive (OR) split and join --- */
+    const GATEWAYS_PROCESS_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_Gw" targetNamespace="http://bpmn.io/schema/bpmn">
+  <process id="GatewaysProcess" isExecutable="false" name="Customer Notification">
+    <startEvent id="gw_start" name="Notify Customer">
+      <outgoing>gw_f1</outgoing>
+    </startEvent>
+    <task id="gw_prep" name="Prepare Message">
+      <incoming>gw_f1</incoming>
+      <outgoing>gw_f2</outgoing>
+    </task>
+    <inclusiveGateway id="gw_split" name="Which channels?">
+      <incoming>gw_f2</incoming>
+      <outgoing>gw_f3</outgoing>
+      <outgoing>gw_f4</outgoing>
+    </inclusiveGateway>
+    <task id="gw_email" name="Send Email">
+      <incoming>gw_f3</incoming>
+      <outgoing>gw_f5</outgoing>
+    </task>
+    <task id="gw_sms" name="Send SMS">
+      <incoming>gw_f4</incoming>
+      <outgoing>gw_f6</outgoing>
+    </task>
+    <inclusiveGateway id="gw_join" name="">
+      <incoming>gw_f5</incoming>
+      <incoming>gw_f6</incoming>
+      <outgoing>gw_f7</outgoing>
+    </inclusiveGateway>
+    <endEvent id="gw_end" name="Customer Notified">
+      <incoming>gw_f7</incoming>
+    </endEvent>
+    <sequenceFlow id="gw_f1" sourceRef="gw_start" targetRef="gw_prep"/>
+    <sequenceFlow id="gw_f2" sourceRef="gw_prep" targetRef="gw_split"/>
+    <sequenceFlow id="gw_f3" name="Email?" sourceRef="gw_split" targetRef="gw_email"/>
+    <sequenceFlow id="gw_f4" name="SMS?" sourceRef="gw_split" targetRef="gw_sms"/>
+    <sequenceFlow id="gw_f5" sourceRef="gw_email" targetRef="gw_join"/>
+    <sequenceFlow id="gw_f6" sourceRef="gw_sms" targetRef="gw_join"/>
+    <sequenceFlow id="gw_f7" sourceRef="gw_join" targetRef="gw_end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Gw">
+    <bpmndi:BPMNPlane id="BPMNPlane_Gw" bpmnElement="GatewaysProcess">
+      <bpmndi:BPMNShape id="gw_start_di" bpmnElement="gw_start"><dc:Bounds x="160" y="202" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_prep_di" bpmnElement="gw_prep"><dc:Bounds x="240" y="180" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_split_di" bpmnElement="gw_split" isMarkerVisible="true"><dc:Bounds x="400" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_email_di" bpmnElement="gw_email"><dc:Bounds x="520" y="100" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_sms_di" bpmnElement="gw_sms"><dc:Bounds x="520" y="260" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_join_di" bpmnElement="gw_join" isMarkerVisible="true"><dc:Bounds x="690" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_end_di" bpmnElement="gw_end"><dc:Bounds x="800" y="202" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="gw_f1_di" bpmnElement="gw_f1"><di:waypoint x="196" y="220"/><di:waypoint x="240" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f2_di" bpmnElement="gw_f2"><di:waypoint x="340" y="220"/><di:waypoint x="400" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f3_di" bpmnElement="gw_f3"><di:waypoint x="425" y="195"/><di:waypoint x="425" y="140"/><di:waypoint x="520" y="140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f4_di" bpmnElement="gw_f4"><di:waypoint x="425" y="245"/><di:waypoint x="425" y="300"/><di:waypoint x="520" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f5_di" bpmnElement="gw_f5"><di:waypoint x="620" y="140"/><di:waypoint x="715" y="140"/><di:waypoint x="715" y="195"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f6_di" bpmnElement="gw_f6"><di:waypoint x="620" y="300"/><di:waypoint x="715" y="300"/><di:waypoint x="715" y="245"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="gw_f7_di" bpmnElement="gw_f7"><di:waypoint x="740" y="220"/><di:waypoint x="800" y="220"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>`;
+
+    /* --- Collaboration Example: two pools with message flow --- */
+    const COLLABORATION_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_Col" targetNamespace="http://bpmn.io/schema/bpmn">
+  <collaboration id="Collab_1">
+    <participant id="part_customer" name="Customer" processRef="CustomerProc"/>
+    <participant id="part_support" name="Support Team" processRef="SupportProc"/>
+    <messageFlow id="mf1" sourceRef="c_send" targetRef="s_start"/>
+    <messageFlow id="mf2" sourceRef="s_send" targetRef="c_recv"/>
+  </collaboration>
+  <process id="CustomerProc" isExecutable="false">
+    <startEvent id="c_start" name="Issue Occurs"><outgoing>c_f1</outgoing></startEvent>
+    <task id="c_send" name="Send Request"><incoming>c_f1</incoming><outgoing>c_f2</outgoing></task>
+    <task id="c_recv" name="Receive Response"><incoming>c_f2</incoming><outgoing>c_f3</outgoing></task>
+    <endEvent id="c_end" name="Issue Resolved"><incoming>c_f3</incoming></endEvent>
+    <sequenceFlow id="c_f1" sourceRef="c_start" targetRef="c_send"/>
+    <sequenceFlow id="c_f2" sourceRef="c_send" targetRef="c_recv"/>
+    <sequenceFlow id="c_f3" sourceRef="c_recv" targetRef="c_end"/>
+  </process>
+  <process id="SupportProc" isExecutable="false">
+    <startEvent id="s_start" name="Request Received"><outgoing>s_f1</outgoing><messageEventDefinition id="s_msgdef"/></startEvent>
+    <task id="s_handle" name="Handle Request"><incoming>s_f1</incoming><outgoing>s_f2</outgoing></task>
+    <task id="s_send" name="Send Response"><incoming>s_f2</incoming><outgoing>s_f3</outgoing></task>
+    <endEvent id="s_end" name="Request Closed"><incoming>s_f3</incoming></endEvent>
+    <sequenceFlow id="s_f1" sourceRef="s_start" targetRef="s_handle"/>
+    <sequenceFlow id="s_f2" sourceRef="s_handle" targetRef="s_send"/>
+    <sequenceFlow id="s_f3" sourceRef="s_send" targetRef="s_end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Col">
+    <bpmndi:BPMNPlane id="BPMNPlane_Col" bpmnElement="Collab_1">
+      <bpmndi:BPMNShape id="part_customer_di" bpmnElement="part_customer" isHorizontal="true"><dc:Bounds x="160" y="80" width="640" height="160"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="c_start_di" bpmnElement="c_start"><dc:Bounds x="210" y="142" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="c_send_di" bpmnElement="c_send"><dc:Bounds x="300" y="120" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="c_recv_di" bpmnElement="c_recv"><dc:Bounds x="520" y="120" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="c_end_di" bpmnElement="c_end"><dc:Bounds x="690" y="142" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="part_support_di" bpmnElement="part_support" isHorizontal="true"><dc:Bounds x="160" y="300" width="640" height="160"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_start_di" bpmnElement="s_start"><dc:Bounds x="332" y="362" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_handle_di" bpmnElement="s_handle"><dc:Bounds x="410" y="340" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_send_di" bpmnElement="s_send"><dc:Bounds x="520" y="340" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_end_di" bpmnElement="s_end"><dc:Bounds x="690" y="362" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="c_f1_di" bpmnElement="c_f1"><di:waypoint x="246" y="160"/><di:waypoint x="300" y="160"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="c_f2_di" bpmnElement="c_f2"><di:waypoint x="400" y="160"/><di:waypoint x="520" y="160"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="c_f3_di" bpmnElement="c_f3"><di:waypoint x="620" y="160"/><di:waypoint x="690" y="160"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="s_f1_di" bpmnElement="s_f1"><di:waypoint x="368" y="380"/><di:waypoint x="410" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="s_f2_di" bpmnElement="s_f2"><di:waypoint x="510" y="380"/><di:waypoint x="520" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="s_f3_di" bpmnElement="s_f3"><di:waypoint x="620" y="380"/><di:waypoint x="690" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="mf1_di" bpmnElement="mf1"><di:waypoint x="350" y="200"/><di:waypoint x="350" y="362"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="mf2_di" bpmnElement="mf2"><di:waypoint x="570" y="340"/><di:waypoint x="570" y="200"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>`;
+
+    /* --- Blank starter diagram for the editor --- */
+    const BLANK_DIAGRAM_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             id="Definitions_Blank" targetNamespace="http://bpmn.io/schema/bpmn">
+  <process id="Process_Blank" isExecutable="false">
+    <startEvent id="StartEvent_1" name="Start"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Blank">
+    <bpmndi:BPMNPlane id="BPMNPlane_Blank" bpmnElement="Process_Blank">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1"><dc:Bounds x="180" y="160" width="36" height="36"/></bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>`;
+
+    /* ----------------------------------------------------------
+       DIAGRAM REGISTRY
+       Maps a data-diagram key to its XML and bilingual label.
+       Lesson diagrams use: <div class="bpmn-diagram" data-diagram="KEY">
+    ---------------------------------------------------------- */
+    const DIAGRAM_REGISTRY = {
+        order: { xml: ORDER_PROCESS_XML, label: { en: 'BPMN Diagram: Order Processing', de: 'BPMN-Diagramm: Auftragsbearbeitung' } },
+        onboarding: { xml: ONBOARDING_PROCESS_XML, label: { en: 'BPMN Diagram: Employee Onboarding', de: 'BPMN-Diagramm: Mitarbeiter-Onboarding' } },
+        events: { xml: EVENTS_PROCESS_XML, label: { en: 'BPMN Diagram: Event-Driven Process', de: 'BPMN-Diagramm: Ereignisgesteuerter Prozess' } },
+        gateways: { xml: GATEWAYS_PROCESS_XML, label: { en: 'BPMN Diagram: Inclusive Gateway', de: 'BPMN-Diagramm: Inklusives Gateway' } },
+        collaboration: { xml: COLLABORATION_XML, label: { en: 'BPMN Collaboration: Customer & Support', de: 'BPMN-Kollaboration: Kunde & Support' } }
+    };
+
+    /* Templates available in the editor's "Load Template" dropdown */
+    const EDITOR_TEMPLATES = {
+        blank: { xml: BLANK_DIAGRAM_XML, label: { en: 'Blank diagram', de: 'Leeres Diagramm' } },
+        order: { xml: ORDER_PROCESS_XML, label: { en: 'Order Processing', de: 'Auftragsbearbeitung' } },
+        onboarding: { xml: ONBOARDING_PROCESS_XML, label: { en: 'Employee Onboarding', de: 'Mitarbeiter-Onboarding' } },
+        gateways: { xml: GATEWAYS_PROCESS_XML, label: { en: 'Inclusive Gateway', de: 'Inklusives Gateway' } }
+    };
+
+    /* Holds the active editor (bpmn-js Modeler) instance */
+    let activeModeler = null;
+
     /* ----------------------------------------------------------
        renderBpmnDiagram(containerId, xml, label)
        ---------------------------------------------------------
@@ -221,8 +447,14 @@ const BpmnExercise = (function () {
             </div>
         `;
 
-        /* Check if bpmn-js is available */
-        if (typeof BpmnJS === 'undefined') {
+        /* Resolve the viewer constructor. We prefer the dedicated
+           BpmnViewer global (captured in index.html) so that loading
+           the Modeler bundle does not clobber the view-only renderer. */
+        var ViewerCtor = (typeof BpmnViewer !== 'undefined') ? BpmnViewer
+                       : (typeof BpmnJS !== 'undefined') ? BpmnJS
+                       : null;
+
+        if (!ViewerCtor) {
             document.getElementById(containerId + '-canvas').innerHTML = `
                 <div class="text-center p-4 text-muted">
                     <i class="bi bi-exclamation-circle fs-3"></i>
@@ -233,7 +465,7 @@ const BpmnExercise = (function () {
         }
 
         /* Initialize the bpmn-js navigated viewer */
-        var viewer = new BpmnJS({
+        var viewer = new ViewerCtor({
             container: '#' + containerId + '-canvas'
         });
 
@@ -255,25 +487,204 @@ const BpmnExercise = (function () {
     /* ----------------------------------------------------------
        initDiagramsForSection()
        ---------------------------------------------------------
-       Called after module content is rendered. Checks for BPMN
-       diagram container divs and initializes them.
+       Called after module content is rendered. Renders all BPMN
+       lesson diagrams and mounts any interactive editors present
+       on the page.
+
+       Data-driven convention:
+         <div class="bpmn-diagram" data-diagram="KEY"></div>
+       KEY is looked up in DIAGRAM_REGISTRY. Legacy fixed IDs
+       (bpmn-order-process / bpmn-onboarding-process) are still
+       supported for backward compatibility.
     ---------------------------------------------------------- */
+    let diagramSeq = 0;
     function initDiagramsForSection() {
         const lang = I18n.getLang();
 
-        /* Order Processing diagram (Module 5, Section 2) */
+        /* --- Data-driven lesson diagrams --- */
+        document.querySelectorAll('.bpmn-diagram[data-diagram]').forEach(function (el) {
+            if (el.getAttribute('data-rendered') === 'true') return;
+            var key = el.getAttribute('data-diagram');
+            var reg = DIAGRAM_REGISTRY[key];
+            if (!reg) return;
+
+            /* Ensure the container has a unique id for renderBpmnDiagram */
+            if (!el.id) {
+                el.id = 'bpmn-diagram-' + (diagramSeq++);
+            }
+            el.setAttribute('data-rendered', 'true');
+            renderBpmnDiagram(el.id, reg.xml, reg.label[lang] || reg.label.en);
+        });
+
+        /* --- Legacy fixed-ID containers (Module 5) --- */
         var orderContainer = document.getElementById('bpmn-order-process');
-        if (orderContainer) {
-            var label = lang === 'de' ? 'BPMN-Diagramm: Auftragsbearbeitung' : 'BPMN Diagram: Order Processing';
-            renderBpmnDiagram('bpmn-order-process', ORDER_PROCESS_XML, label);
+        if (orderContainer && orderContainer.getAttribute('data-rendered') !== 'true') {
+            orderContainer.setAttribute('data-rendered', 'true');
+            var lbl1 = lang === 'de' ? 'BPMN-Diagramm: Auftragsbearbeitung' : 'BPMN Diagram: Order Processing';
+            renderBpmnDiagram('bpmn-order-process', ORDER_PROCESS_XML, lbl1);
+        }
+        var onboardingContainer = document.getElementById('bpmn-onboarding-process');
+        if (onboardingContainer && onboardingContainer.getAttribute('data-rendered') !== 'true') {
+            onboardingContainer.setAttribute('data-rendered', 'true');
+            var lbl2 = lang === 'de' ? 'BPMN-Diagramm: Mitarbeiter-Onboarding' : 'BPMN Diagram: Employee Onboarding';
+            renderBpmnDiagram('bpmn-onboarding-process', ONBOARDING_PROCESS_XML, lbl2);
         }
 
-        /* Employee Onboarding diagram (Module 5, Section 3) */
-        var onboardingContainer = document.getElementById('bpmn-onboarding-process');
-        if (onboardingContainer) {
-            var label = lang === 'de' ? 'BPMN-Diagramm: Mitarbeiter-Onboarding' : 'BPMN Diagram: Employee Onboarding';
-            renderBpmnDiagram('bpmn-onboarding-process', ONBOARDING_PROCESS_XML, label);
-        }
+        /* --- Interactive editor(s) --- */
+        initEditorsForSection();
+    }
+
+    /* ==========================================================
+       INTERACTIVE BPMN EDITOR (bpmn-js Modeler)
+       ----------------------------------------------------------
+       Unlike the view-only diagrams above, the editor lets the
+       learner CREATE and MODIFY diagrams: add elements from the
+       palette, connect, rename, morph, delete, undo/redo, and
+       export the result as .bpmn (XML) or .svg.
+
+       Mount convention:
+         <div class="bpmn-editor-mount" data-editor="playground"></div>
+    ========================================================== */
+    function initEditorsForSection() {
+        const lang = I18n.getLang();
+
+        document.querySelectorAll('.bpmn-editor-mount').forEach(function (mount) {
+            if (mount.getAttribute('data-rendered') === 'true') return;
+            mount.setAttribute('data-rendered', 'true');
+
+            if (!mount.id) mount.id = 'bpmn-editor-' + (diagramSeq++);
+            var canvasId = mount.id + '-canvas';
+
+            /* Build the toolbar + canvas scaffold */
+            var toolbarLabel = lang === 'de' ? 'BPMN-Editor (bearbeitbar)' : 'BPMN Editor (editable)';
+            var templateLabel = lang === 'de' ? 'Vorlage laden…' : 'Load template…';
+            var templateOptions = Object.keys(EDITOR_TEMPLATES).map(function (k) {
+                return '<option value="' + k + '">' + (EDITOR_TEMPLATES[k].label[lang] || EDITOR_TEMPLATES[k].label.en) + '</option>';
+            }).join('');
+
+            mount.innerHTML = `
+                <div class="bpmn-editor-wrapper">
+                    <div class="bpmn-editor-toolbar">
+                        <span class="bpmn-editor-title"><i class="bi bi-pencil-square me-1"></i>${toolbarLabel}</span>
+                        <div class="bpmn-editor-actions">
+                            <select class="form-select form-select-sm bpmn-editor-template"
+                                    onchange="BpmnExercise.editorLoadTemplate('${mount.id}', this.value); this.selectedIndex=0;">
+                                <option value="">${templateLabel}</option>
+                                ${templateOptions}
+                            </select>
+                            <button class="btn btn-sm btn-outline-light" title="${I18n.t('editor_new')}" onclick="BpmnExercise.editorNew('${mount.id}')"><i class="bi bi-file-earmark"></i></button>
+                            <button class="btn btn-sm btn-outline-light" title="${I18n.t('editor_zoom_fit')}" onclick="BpmnExercise.editorZoomFit('${mount.id}')"><i class="bi bi-arrows-fullscreen"></i></button>
+                            <button class="btn btn-sm btn-outline-light" title="${I18n.t('editor_undo')}" onclick="BpmnExercise.editorUndo('${mount.id}')"><i class="bi bi-arrow-counterclockwise"></i></button>
+                            <button class="btn btn-sm btn-outline-light" title="${I18n.t('editor_redo')}" onclick="BpmnExercise.editorRedo('${mount.id}')"><i class="bi bi-arrow-clockwise"></i></button>
+                            <button class="btn btn-sm btn-light" onclick="BpmnExercise.editorDownloadXML('${mount.id}')"><i class="bi bi-download me-1"></i>.bpmn</button>
+                            <button class="btn btn-sm btn-light" onclick="BpmnExercise.editorDownloadSVG('${mount.id}')"><i class="bi bi-image me-1"></i>.svg</button>
+                        </div>
+                    </div>
+                    <div class="bpmn-editor-canvas" id="${canvasId}"></div>
+                </div>
+            `;
+
+            /* Resolve the Modeler constructor (captured in index.html) */
+            var ModelerCtor = (typeof BpmnModeler !== 'undefined') ? BpmnModeler : null;
+            if (!ModelerCtor) {
+                document.getElementById(canvasId).innerHTML = `
+                    <div class="text-center p-5 text-muted">
+                        <i class="bi bi-exclamation-circle fs-3"></i>
+                        <p class="mt-2">${lang === 'de' ? 'Der BPMN-Editor konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung.' : 'The BPMN editor could not be loaded. Please check your internet connection.'}</p>
+                    </div>`;
+                return;
+            }
+
+            /* Create the modeler and store it on the mount element */
+            var modeler = new ModelerCtor({ container: '#' + canvasId });
+            mount._modeler = modeler;
+            activeModeler = modeler;
+
+            modeler.importXML(BLANK_DIAGRAM_XML).then(function () {
+                modeler.get('canvas').zoom('fit-viewport');
+            }).catch(function (err) {
+                console.error('BPMN editor import error:', err);
+            });
+        });
+    }
+
+    /* Helper: get the modeler instance for a mount id */
+    function getModeler(mountId) {
+        var mount = document.getElementById(mountId);
+        return mount ? mount._modeler : null;
+    }
+
+    /* Toolbar: start a new blank diagram */
+    function editorNew(mountId) {
+        var modeler = getModeler(mountId);
+        if (!modeler) return;
+        modeler.importXML(BLANK_DIAGRAM_XML).then(function () {
+            modeler.get('canvas').zoom('fit-viewport');
+        });
+    }
+
+    /* Toolbar: load a template from EDITOR_TEMPLATES */
+    function editorLoadTemplate(mountId, key) {
+        if (!key) return;
+        var modeler = getModeler(mountId);
+        var tpl = EDITOR_TEMPLATES[key];
+        if (!modeler || !tpl) return;
+        modeler.importXML(tpl.xml).then(function () {
+            modeler.get('canvas').zoom('fit-viewport');
+        }).catch(function (err) {
+            console.error('Template load error:', err);
+        });
+    }
+
+    /* Toolbar: fit diagram to the viewport */
+    function editorZoomFit(mountId) {
+        var modeler = getModeler(mountId);
+        if (modeler) modeler.get('canvas').zoom('fit-viewport');
+    }
+
+    /* Toolbar: undo / redo via the commandStack */
+    function editorUndo(mountId) {
+        var modeler = getModeler(mountId);
+        if (modeler) { try { modeler.get('commandStack').undo(); } catch (e) {} }
+    }
+    function editorRedo(mountId) {
+        var modeler = getModeler(mountId);
+        if (modeler) { try { modeler.get('commandStack').redo(); } catch (e) {} }
+    }
+
+    /* Helper: trigger a browser download of a text blob */
+    function downloadBlob(filename, mime, text) {
+        var blob = new Blob([text], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    /* Toolbar: export the current diagram as .bpmn (XML) */
+    function editorDownloadXML(mountId) {
+        var modeler = getModeler(mountId);
+        if (!modeler) return;
+        modeler.saveXML({ format: true }).then(function (result) {
+            downloadBlob('diagram.bpmn', 'application/xml', result.xml);
+        }).catch(function (err) {
+            console.error('Export XML error:', err);
+        });
+    }
+
+    /* Toolbar: export the current diagram as .svg */
+    function editorDownloadSVG(mountId) {
+        var modeler = getModeler(mountId);
+        if (!modeler) return;
+        modeler.saveSVG().then(function (result) {
+            downloadBlob('diagram.svg', 'image/svg+xml', result.svg);
+        }).catch(function (err) {
+            console.error('Export SVG error:', err);
+        });
     }
 
     /* ----------------------------------------------------------
@@ -528,6 +939,7 @@ const BpmnExercise = (function () {
     return {
         renderBpmnDiagram: renderBpmnDiagram,
         initDiagramsForSection: initDiagramsForSection,
+        initEditorsForSection: initEditorsForSection,
         renderExercises: renderExercises,
         handleDragStart: handleDragStart,
         handleDragOver: handleDragOver,
@@ -535,6 +947,14 @@ const BpmnExercise = (function () {
         handleDrop: handleDrop,
         checkExercise: checkExercise,
         resetExercise: resetExercise,
+        /* Interactive editor toolbar handlers */
+        editorNew: editorNew,
+        editorLoadTemplate: editorLoadTemplate,
+        editorZoomFit: editorZoomFit,
+        editorUndo: editorUndo,
+        editorRedo: editorRedo,
+        editorDownloadXML: editorDownloadXML,
+        editorDownloadSVG: editorDownloadSVG,
         ORDER_PROCESS_XML: ORDER_PROCESS_XML,
         ONBOARDING_PROCESS_XML: ONBOARDING_PROCESS_XML
     };
